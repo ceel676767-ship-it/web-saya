@@ -2,132 +2,310 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Perkenalan Diri</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Login & Galaxy Links</title>
+    
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+    
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: linear-gradient(120deg, #74ebd5, #9face6);
-            color: #333;
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        /* --- STYLE DASAR BODY (TRANSISI TEMA) --- */
+        body { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            background: #1B2735; /* Warna dasar gelap */
+            padding: 20px;
+            overflow-x: hidden;
+            transition: background 1s ease;
         }
 
+        /* Latar Belakang Animasi untuk Login */
+        .bg-login {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(-45deg, #FFE52A,#FAC898, #6699CC, #e74c3c); 
+            background-size: 400% 400%; 
+            animation: gradientMove 15s ease infinite;
+            z-index: -1;
+        }
+
+        /* Latar Belakang Galaxy (Awalnya Sembunyi) */
+        .bg-galaxy {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at bottom, #1B2735 0%, #090A0F 100%);
+            display: none;
+            z-index: -2;
+        }
+
+        .bg-galaxy::after {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(-45deg, #ee7752, #8c1aff, #4d4dff, black);
+            background-size: 400% 400%;
+            animation: gradientMove 12s ease infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- STYLE LOGIN WRAPPER --- */
+        .wrapper { 
+            position: relative; 
+            width: 400px; 
+            height: 440px; 
+            background: rgba(255, 255, 255, 0.1); 
+            border: 2px solid rgba(255, 255, 255, 0.5); 
+            border-radius: 20px; 
+            backdrop-filter: blur(15px); 
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2); 
+            display: flex; 
+            overflow: hidden; 
+            transition: .3s ease; 
+        }
+        .wrapper.active { height: 520px; }
+        .form-box { width: 100%; padding: 40px; transition: transform .3s ease; }
+        .wrapper.active .form-box.login { transform: translateX(-400px); }
+        .form-box.register { position: absolute; transform: translateX(400px); }
+        .wrapper.active .form-box.register { transform: translateX(0); }
+
+        h1 { font-size: 32px; text-align: center; color: #fff; margin-bottom: 10px; }
+        .input-box { position: relative; width: 100%; height: 50px; margin: 25px 0; }
+        .input-box input { 
+            width: 100%; height: 100%; background: transparent; 
+            border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 40px; 
+            font-size: 16px; color: #fff; padding: 0 45px 0 20px; outline: none; 
+        }
+        .input-box i { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 20px; color: #fff; }
+
+        .btn { 
+            position: relative; width: 100%; height: 45px; background: transparent; 
+            border: 2px solid #fff; border-radius: 40px; cursor: pointer; 
+            font-size: 16px; color: #fff; font-weight: 600; transition: 0.5s; overflow: hidden; z-index: 1; 
+        }
+        .btn::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff; z-index: -1; transform: scaleX(0); transform-origin: right; transition: transform 0.5s;
+        }
+        .btn:hover { color: black; }
+        .btn:hover::after { transform: scaleX(1); transform-origin: left; }
+
+        .register-link { font-size: 14.5px; color: #fff; text-align: center; margin: 20px 0 15px; }
+        .register-link a { color: #fff; text-decoration: none; font-weight: 600; border-bottom: 2px solid transparent; }
+        .register-link a:hover { border-bottom: 2px solid #fff; }
+
+        /* --- STYLE GALAXY BIO LINK --- */
         .container {
-            max-width: 900px;
-            margin: 50px auto;
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            max-width: 500px; width: 100%; z-index: 1; display: none; /* Sembunyi di awal */
+            animation: fadeIn 1s ease forwards;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 30px;
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-title {
+            color: white; text-align: center; margin-bottom: 25px; font-weight: 600;
+            letter-spacing: 2px; text-shadow: 0 0 10px #8c1aff, 0 0 20px #23a6d5; text-transform: uppercase;
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 36px;
-            color: #4a4aef;
+        .link-card {
+            display: flex; align-items: center; background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 20px; border-radius: 20px; margin-bottom: 15px;
+            color: white; text-decoration: none; transition: all .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        header p {
-            font-size: 18px;
-            color: #666;
-        }
-
-        .profile {
-            display: flex;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
-
-        .profile img {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 5px solid #4a4aef;
-        }
-
-        .profile-text {
-            flex: 1;
-        }
-
-        .profile-text h2 {
-            margin-top: 0;
-            color: #4a4aef;
-        }
-
-        .profile-text p {
-            line-height: 1.6;
-        }
-
-        .section {
-            margin-top: 30px;
-        }
-
-        .section h3 {
-            color: #4a4aef;
-            margin-bottom: 10px;
-        }
-
-        ul {
-            padding-left: 20px;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            color: #777;
-            font-size: 14px;
+        .link-card:hover { transform: scale(1.05); background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.5); }
+        .link-card img { width: 35px; height: 35px; margin-right: 15px; border-radius: 50%; }
+        .link-text { flex: 1; font-size: 15px; font-weight: 500; }
+        
+        .logout-text {
+            display: block; text-align: center; color: rgba(255,255,255,0.5); 
+            margin-top: 20px; cursor: pointer; font-size: 13px; text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>Perkenalan Diri</h1>
-            <p>Website pribadi sederhana</p>
-        </header>
+    <div class="bg-login" id="bgLogin"></div>
+    <div class="bg-galaxy" id="bgGalaxy"></div>
 
-        <div class="profile">
-            <img src="https://share.google/gNfAJHdcihlSY2tac.jpg" alt="deskripsi gambar">
-
-            <div class="profile-text">
-                <h2>Halo, saya Abdan</h2>
-                <p>
-                    Saya adalah seorang pelajar yang tertarik dengan dunia teknologi,
-                    khususnya pemrograman dan desain web. Saya sedang belajar HTML, CSS,
-                    dan bahasa pemrograman lainnya.
-                </p>
-            </div>
+    <div class="wrapper" id="authSection">
+        <div class="form-box login">
+            <form id="loginForm">
+                <h1 class="animate__animated
+                animate__backInDown" id="textLogin">Login</h1>
+                <div class="input-box">
+                    <input type="text" id="loginUser" placeholder="Username" required>
+                    <i class='bx bxs-user'></i>
+                </div>
+                <div class="input-box">
+                    <input type="password" id="loginPass" placeholder="Password" required>
+                    <i class='bx bxs-lock-alt' ></i>
+                </div>
+                <button type="submit" class="btn">Login</button>
+                <div class="register-link">
+                    <p>Belum punya akun? <a href="#" class="register-link-click">Daftar sekarang</a></p>
+                </div>
+            </form>
         </div>
 
-        <div class="section">
-            <h3>Data Diri</h3>
-            <ul>
-                <li>Nama: Abdan Rofiq Saifullah</li>
-                <li>Umur: 15</li>
-                <li>Sekolah: Boem</li>
-                <li>Hobi: Coding, Gaming, Membaca</li>
-            </ul>
+        <div class="form-box register">
+            <form id="registerForm">
+                <h1 id="textReg"
+                class="animate__animated">Registrasi</h1>
+                <div class="input-box">
+                    <input type="text" id="regUser" placeholder="Username" required>
+                    <i class='bx bxs-user'></i>
+                </div>
+                <div class="input-box">
+                    <input type="email" id="regEmail" placeholder="Email" required>
+                    <i class='bx bxs-envelope'></i>
+                </div>
+                <div class="input-box">
+                    <input type="password" id="regPass" placeholder="Password" required>
+                    <i class='bx bxs-lock-alt' ></i>
+                </div>
+                <button type="submit" class="btn">Daftar</button>
+                <div class="register-link">
+                    <p>Sudah punya akun? <a href="#" class="login-link-click">Login</a></p>
+                </div>
+            </form>
         </div>
-
-        <div class="section">
-            <h3>Keahlian</h3>
-            <ul>
-                <li>HTML & CSS</li>
-                <li>Dasar JavaScript</li>
-                <li>Desain sederhana</li>
-            </ul>
-        </div>
-
-        <footer>
-            © 2025 | Dibuat oleh abdan
-        </footer>
     </div>
 
+    <div class="container" id="bioLinkSection">
+        <h2 class="section-title">Link Danzz</h2>
+
+        <a href="https://www.instagram.com/danzzekian_1351" target="_blank" class="link-card">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Instagram">
+            <span class="link-text">Instagram</span>
+            <span class="menu-dots">⋮</span>
+        </a>
+
+        <a href="#" class="link-card">
+            <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok"> 
+            <span class="link-text">TikTok</span>
+            <span class="menu-dots">⋮</span>
+        </a>
+
+        <a href="https://api.whatsapp.com/send?phone=62895622715883&text=assalamualaikum" target="_blank" rel="noopener noreferrer" class="link-card">
+           <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+          <span class="link-text">WhatsApp</span>
+            <span class="menu-dots">⋮</span>
+        </a>
+
+        <p class="logout-text" onclick="location.reload()">Keluar dari sistem</p>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
+    <script>
+    // 1. Inisialisasi Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyCdnSvETzjMsK6JylIbZ8AkWR3lbkWXvWU",
+        authDomain: "webloginsaya.firebaseapp.com",
+        projectId: "webloginsaya",
+        storageBucket: "webloginsaya.firebasestorage.app",
+        messagingSenderId: "374303055024",
+        appId: "1:374303055024:web:7310fb5f5efe9f13c4ef75",
+        measurementId: "G-K4KVYYKQR5",
+        databaseURL: "https://webloginsaya-default-rtdb.firebaseio.com" 
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // 2. DOM Elements
+    const authSection = document.getElementById('authSection');
+    const bioLinkSection = document.getElementById('bioLinkSection');
+    const bgLogin = document.getElementById('bgLogin');
+    const bgGalaxy = document.getElementById('bgGalaxy');
+    const wrapper = document.querySelector('.wrapper');
+    const loginLink = document.querySelector('.login-link-click');
+    const registerLink = document.querySelector('.register-link-click');
+
+ // Navigasi Form dengan Reset Animasi
+registerLink.onclick = (e) => { 
+    e.preventDefault(); 
+    wrapper.classList.add('active'); 
+    
+    // Picu animasi pada teks Registrasi
+    const textReg = document.getElementById('textReg');
+    textReg.classList.remove('animate__bounceIn'); // Hapus jika ada
+    void textReg.offsetWidth; // Trik "Reflow" untuk mereset animasi
+    textReg.classList.add('animate__bounceIn'); // Jalankan animasi
+};
+
+loginLink.onclick = (e) => { 
+    e.preventDefault(); 
+    wrapper.classList.remove('active'); 
+    
+    // Picu animasi pada teks Login
+    const textLogin = document.getElementById('textLogin');
+    textLogin.classList.remove('animate__jackInTheBox');
+    void textLogin.offsetWidth;
+    textLogin.classList.add('animate__jackInTheBox');
+};
+
+
+    // 3. Logika Registrasi
+    document.getElementById('registerForm').onsubmit = (e) => {
+        e.preventDefault();
+        const user = document.getElementById('regUser').value;
+        const email = document.getElementById('regEmail').value;
+        const pass = document.getElementById('regPass').value;
+
+        database.ref('users/' + user).set({
+            username: user, email: email, password: pass
+        }).then(() => {
+            Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Akun Anda telah terdaftar.' });
+            wrapper.classList.remove('active');
+            document.getElementById('registerForm').reset();
+        });
+    };
+
+    // 4. Logika Login (Menuju Halaman Galaxy)
+    document.getElementById('loginForm').onsubmit = (e) => {
+        e.preventDefault();
+        const userInp = document.getElementById('loginUser').value;
+        const passInp = document.getElementById('loginPass').value;
+
+        database.ref('users/' + userInp).once('value').then((snapshot) => {
+            if (snapshot.exists()) {
+                const userData = snapshot.val();
+                if (userData.password === passInp) {
+                    Swal.fire({ 
+                        icon: 'success', title: 'Akses Diterima', 
+                        text: 'Memasuki sistem Danzz...', timer: 1500, showConfirmButton: false 
+                    }).then(() => {
+                        // TRANSISI HALAMAN
+                        authSection.style.display = 'none';
+                        bgLogin.style.display = 'none';
+                        
+                        bioLinkSection.style.display = 'block';
+                        bgGalaxy.style.display = 'block';
+                        document.body.style.alignItems = 'flex-start'; // Untuk scrolling bio link
+                    });
+                } else {
+                    Swal.fire('Gagal', 'Password salah!', 'error');
+                }
+            } else {
+                Swal.fire('Tidak Ada', 'Username tidak ditemukan!', 'warning');
+            }
+        });
+    };
+    </script>
 </body>
 </html>
